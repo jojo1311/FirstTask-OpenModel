@@ -1,0 +1,16 @@
+{
+    "model": [
+        {"name": "josette",
+         "description" : "some description"
+        },
+        {"name": "audrey",
+            "description" : "some description"
+        },
+        {"name": "bryan",
+            "description" : "some description"
+        },
+        {"name": "Roberto",
+            "description" : "some description"
+        }
+    ]
+}

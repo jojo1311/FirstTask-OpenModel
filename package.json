@@ -1,0 +1,46 @@
+{
+  "name": "noflo-ui",
+  "description": "NoFlo Development Environment",
+  "version": "0.1.8",
+  "author": {
+    "name": "Henri Bergius",
+    "email": "henri.bergius@iki.fi"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/noflo/noflo-ui.git"
+  },
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "undefined/blob/master/LICENSE-MIT"
+    }
+  ],
+  "dependencies": {},
+  "devDependencies": {
+    "grunt": "~0.4.1",
+    "grunt-contrib-coffee": "~0.7.0",
+    "grunt-coffeelint": "~0.0.6",
+    "chai": "~1.5.0",
+    "mocha": "~1.9.0",
+    "grunt-contrib-uglify": "~0.2.0",
+    "grunt-contrib-watch": "~0.5.3",
+    "grunt-contrib-compress": "~0.5.2",
+    "grunt-phonegap-build": "0.0.8",
+    "grunt-lint-inline": "~0.3.1",
+    "grunt-contrib-clean": "~0.5.0",
+    "grunt-string-replace": "^0.2.7",
+    "grunt-zip": "^0.13.0",
+    "grunt-gh-pages": "^0.9.1",
+    "grunt-noflo-manifest": "^0.1.10",
+    "grunt-noflo-browser": "^0.1.2",
+    "grunt-contrib-connect": "^0.7.1",
+    "grunt-saucelabs": "^5.1.2",
+    "grunt-bower-task": "^0.3.4",
+    "grunt-vulcanize": "^0.2.1"
+  },
+  "scripts": {
+    "test": "grunt test"
+  },
+  "keywords": []
+}

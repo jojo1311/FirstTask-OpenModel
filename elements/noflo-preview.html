@@ -1,0 +1,113 @@
+<polymer-element name="noflo-preview" attributes="runtime maximized">
+  <template>
+    <style>
+      :host {
+        padding: 0px;
+        height: 350px;
+        max-height: none;
+        overflow: hidden;
+      }
+      :host(.the-card-content){
+        max-height: none !important;
+      }
+      header h1 {
+        left: 0px;
+      }
+      ul.toolbar2right {
+        right: 0px;
+      }
+      .blue-button {
+        background-color: transparent;
+      }
+      #preview {
+        text-align: center;
+      }
+      #preview pre {
+        max-height: 304px;
+        color: #7ee67e;
+        font-size: 10px;
+        overflow-x: hidden;
+        overflow-y: auto;
+        text-align: left;
+        margin-bottom: 0px;
+        -webkit-user-select: initial;
+        user-select: initial;
+      }
+      #preview img {
+        max-width: 265px;
+        max-height: 265px;
+      }
+      #preview.maximized img {
+        max-width: 100%;
+        max-height: 100%;
+      }
+
+      #preview-iframe {
+        display: block;
+        border: none;
+        width: 300px;
+        height: 300px;
+        margin-top: 0;
+      }
+
+      #preview.maximized #preview-iframe {
+        width: 100%;
+        min-height: 100%;
+      }
+    </style>
+    <header>
+      <h1>Preview</h1>
+    </header>
+    <ul class="toolbar toolbar2right">
+      <li></li>
+      <template if="{{ !maximized }}">
+      <li><button class="blue-button" on-click="{{ maximize }}"><i class="fa fa-arrows-alt"></i> Maximize</button></li>
+      </template>
+      <template if="{{ maximized }}">
+      <li><button class="blue-button" on-click="{{ minimize }}"><i class="fa fa-arrow-right"></i> Minimize</button></li>
+      </template>
+    </ul>
+    <div id="preview" class="{{ { maximized: maximized } | tokenList }}"></div>
+  </template>
+  <script>
+    Polymer('noflo-preview', {
+      runtime: null,
+      returnTo: null,
+      maximized: false,
+      attached: function () {
+      },
+      button: function (event, data, sender) {
+        event.preventDefault();
+        var action = sender.getAttribute('data-action');
+        this[action]();
+      },
+      maximizedChanged: function() {
+        if (this.maximized) {
+          this.parentNode.classList.add('maximized');
+          this.$.preview.classList.add('maximized');
+        } else {
+          this.parentNode.classList.remove('maximized');
+          this.$.preview.classList.remove('maximized');
+        }
+        this.fire('maximized', this.maximized);
+      },
+      maximize: function () {
+        this.maximized = true;
+      },
+      minimize: function () {
+        this.maximized = false;
+      },
+      runtimeChanged: function () {
+        // Capture runtime container to here
+        this.$.preview.appendChild(this.runtime.getElement());
+      },
+      detached: function () {
+        if (!this.runtime || !this.returnTo) {
+          return;
+        }
+        // Return runtime element to main container
+        this.returnTo.appendChild(this.runtime.getElement());
+      }
+    });
+  </script>
+</polymer-element>

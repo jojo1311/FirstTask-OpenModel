@@ -1,0 +1,178 @@
+<polymer-element name="noflo-component-editor" attributes="component width height">
+  <template>
+    <style type="text/css">
+      :host {
+        background-color: black;
+        overflow: hidden;
+      }
+      .CodeMirror {
+        height: 100%;
+        cursor: text;
+      }
+      .CodeMirror-scroll {
+        height: 100%;
+      }
+      #code,
+      #tests {
+        display: block;
+        width: 50%;
+        height: 100%;
+        position: absolute;
+        left: 0px;
+        top: 72px;
+      }
+      #tests {
+        left: auto;
+        right: 0px;
+      }
+      #code h1,
+      #tests h1 {
+        margin: 0;
+        line-height: 36px;
+        padding-left: 36px;
+        font-size: 14px;
+        text-transform: uppercase;
+        color: white;
+      }
+      #code h1 {
+        text-align: right;
+      }
+    </style>
+    <link rel="stylesheet" href="../bower_components/codemirror/lib/codemirror.css">
+    <link rel="stylesheet" href="../bower_components/codemirror/theme/mdn-like.css">
+    <link rel="stylesheet" href="../css/codemirror-noflo.css">
+    <section id="code">
+      <h1>Implementation</h1>
+      <div id="code_editor"></div>
+    </section> 
+    <section id="tests">
+      <h1>Tests</h1>
+      <div id="tests_editor"></div>
+    </section> 
+    <script type="text/plain" id="CoffeeScriptExample">
+noflo = require 'noflo'
+
+exports.getComponent = ->
+  c = new noflo.Component
+  c.inPorts.add 'in', (event, payload) ->
+    return unless event is 'data'
+    # Do something with the packet, then
+    outPorts.out.send payload
+  c.outPorts.add 'out'
+  c
+    </script>
+    <script type="text/plain" id="JavaScriptExample">
+var noflo = require('noflo');
+
+exports.getComponent = function () {
+  var c = new noflo.Component();
+
+  c.inPorts.add('in', function (event, payload) {
+    if (event !== 'data') {
+      return;
+    }
+    // Do something with the packet, then
+    c.outPorts.out.send(payload);
+  });
+  c.outPorts.add('out');
+  return c;
+};
+    </script>
+  </template>
+  <script src="../bower_components/codemirror/lib/codemirror.js"></script>
+  <script src="../bower_components/codemirror/mode/javascript/javascript.js"></script>
+  <script src="../bower_components/codemirror/mode/coffeescript/coffeescript.js"></script>
+  <script src="../bower_components/codemirror/mode/clike/clike.js"></script>
+  <script>
+    Polymer('noflo-component-editor', {
+      component: null,
+      width: null,
+      height: null,
+      codeEditor: null,
+      testsEditor: null,
+      theme: 'dark',
+      componentChanged: function () {
+        if (!this.component || !this.component.name) {
+          this.style.display = 'none';
+          return;
+        }
+        this.style.display = 'block';
+        this.$.code_editor.innerHTML = '';
+
+        if (!this.component.code) {
+          this.component.code = this.getExampleCode();
+        }
+
+        this.codeEditor = CodeMirror(this.$.code_editor, {
+          lineNumbers: true,
+          value: this.component.code || '',
+          mode: this.getMirrorMode(this.component.language),
+          theme: this.getMirrorTheme(),
+          readOnly: this.component.project ? false : true
+        });
+        this.codeEditor.on('change', function () {
+          this.component.code = this.codeEditor.getValue();
+          this.fire('changed', this.component);
+        }.bind(this));
+        this.$.tests_editor.innerHTML = '';
+        this.testsEditor = CodeMirror(this.$.tests_editor, {
+          lineNumbers: true,
+          value: this.component.tests || '',
+          mode: this.getMirrorMode(this.component.language),
+          theme: this.getMirrorTheme(),
+          readOnly: this.component.project ? false : true
+        });
+        this.testsEditor.on('change', function () {
+          this.component.tests = this.testsEditor.getValue();
+          this.fire('changed', this.component);
+        }.bind(this));
+
+        this.setSize();
+      },
+      widthChanged: function () {
+        this.setSize();
+      },
+      heightChanged: function () {
+        this.setSize();
+      },
+      getMirrorMode: function (language) {
+        if (language === 'coffeescript' || language === 'javascript') {
+          return language;
+        } else if (language === 'c++') {
+          return 'text/x-c++src';
+        }
+        return 'clike';
+      },
+      getMirrorTheme: function () {
+        if (this.theme === 'light') {
+          return 'mdn-like';
+        }
+        return 'noflo';
+      },
+      getExampleCode: function () {
+        if (this.component.language === 'coffeescript') {
+          return this.$.CoffeeScriptExample.textContent.trim();
+        }
+        if (this.component.language === 'javascript') {
+          return this.$.JavaScriptExample.textContent.trim();
+        }
+      },
+      themeChanged: function () {
+        if (!this.codeEditor || !this.testsEditor) {
+          return;
+        }
+        this.codeEditor.setOption('theme', this.getMirrorTheme());
+        this.testsEditor.setOption('theme', this.getMirrorTheme());
+      },
+      setSize: function () {
+        if (!this.codeEditor || !this.testsEditor || !this.width || !this.height) {
+          return;
+        }
+        var width = (this.width - 80) / 2;
+        var height = this.height - 82;
+        this.codeEditor.setSize(width, height);
+        this.testsEditor.setSize(width, height);
+      }
+    });
+  </script>
+</polymer-element>

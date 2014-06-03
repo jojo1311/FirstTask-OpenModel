@@ -1,0 +1,194 @@
+<polymer-element name="nolo-open-model-search"  class="modal-content" attributes="results">
+    <template>
+        <style>
+            input {
+                /*background-color: hsl(187, 45%, 5%);*/
+                background-image: none;
+                font-family: "SourceCodePro",Helvetica,Arial,sans-serif;
+                border: none;
+                padding: 0px;
+                padding-right: 10px;
+                padding-left: 10px;
+                color: white;
+                width: 500px;
+                height: 36px;
+                display: inline;
+            }
+            #clear {
+                position: absolute;
+                right: 160px;
+                top: 0px;
+                line-height: 72px;
+                display: block;
+                height: 72px;
+                font-size: 15px;
+                color: hsl(189, 50%, 50%);
+            }
+            #search {
+                display: block;
+                position: absolute;
+                top: 0px;
+                left: 0px;
+                background-color: hsl(192, 25%, 92%);
+                color: black;
+                font-family: "SourceCodePro",Helvetica,Arial,sans-serif;
+                border: 1px;
+                padding: 0px;
+                padding-right: 54px;
+                padding-left: 18px;
+                width: calc(72px * 5 - 1px);
+                height: 71px;
+                /*box-sizing: border-box;*/
+                font-size: 12px;
+                display: inline;
+                background-image: radial-gradient(1px at 0px 0px, hsl(210, 50%, 60%) 0.5px, hsla(0, 0%, 0%, 0) 1px);
+                background-size: calc(100% - 1px);
+                background-position: 0px;
+                border-radius: none;
+                margin: 0 auto;
+                margin-left: 20%;
+                border-right: 1px hsla(190, 90%, 80%, 0.08) solid;
+                border-bottom: 1px hsla(190, 90%, 80%, 0.08) solid;
+                border-left: 1px hsla(190, 90%, 80%, 0.08) solid;
+                border-top: 1px hsla(190, 90%, 80%, 0.08) solid;
+            }
+            .search-results-list{
+                -webkit-box-sizing: border-box;
+                -mox-box-sizing: border-box;
+                box-sizing: border-box;
+                list-style: none;
+                margin: 0;
+                padding: 0;
+                /*background-color: black;*/
+                width: calc(72px * 4);
+                border-right: 1px solid hsla(190, 90%, 80%, 0.3);
+            }
+            /*.search-results-item i {*/
+                /*color: hsla(191, 100%, 92%, 0.898039);*/
+                /*position: absolute;*/
+                /*top: 18px;*/
+                /*left: 0;*/
+                /*width: 36px;*/
+                /*text-align: center;*/
+                /*padding: 0;*/
+                /*margin: 0;*/
+            /*}*/
+            /*.search-results-item h2 {*/
+                /*position: absolute;*/
+                /*margin: 0;*/
+                /*display: block;*/
+                /*left: 36px;*/
+                /*top: 18px;*/
+                /*height: 36px;*/
+                /*width: calc(100% - 36px);*/
+                /*font-size: 12px;*/
+                /*text-overflow: ellipsis;*/
+                /*text-transform: uppercase;*/
+                /*white-space: nowrap;*/
+                /*overflow-x: hidden;*/
+            /*}*/
+            /*.search-results-item p {*/
+                /*position: relative;*/
+                /*display: block;*/
+                /*left: 8px;*/
+                /*padding: 0px;*/
+                /*margin: 0px;*/
+                /*margin-top: 24px;*/
+                /*height: auto;*/
+                /*line-height: calc(36px / 3);*/
+                /*font-size: 10px;*/
+                /*color: hsla(188, 15%, 60%, 0.8);*/
+                /*text-shadow: hsl(0, 0%, 0%) 0px 1px 1px;*/
+            /*}*/
+            button#clear {
+                background: transparent;
+            }
+            .toolbar a {
+                position: relative;
+                display: inline-block;
+                right: -84%;
+                bottom: -30px;
+            }
+        </style>
+        <form>
+            <input id="search" value="{{ modelSearch }}" type="text" placeholder="Search" autocapitalize="off" autocorrect="off" x-webkit-speech>
+            <button id="clear" on-click="{{ clearSearch }}"><i class="fa fa-times"></i></button>
+
+
+        </form>
+
+
+        <ul  class="search-results-list">
+            <template id="result" repeat="{{ result, index in results }}">
+                <li class="search-results-item" data-index="{{ index }}" on-click="{{ clicked }}">
+                    <!--<i class="fa fa-{{ result.icon }}"></i>-->
+                    <h2>{{ result.name }}</h2>
+                    <p>{{ result.description }}</p>
+                </li>
+            </template>
+        </ul>
+        <div class="toolbar">
+            <a on-click="{{ close }}">Cancel</a>
+        </div>
+    </template>
+
+    <script>
+        Polymer('nolo-open-model-search', {
+            modelSearch: null,
+            response: null,
+            resultsCard: null,
+            results: [],
+            attached: function () {
+                document.getElementById('container').classList.add('blur');
+            },
+            detached: function () {
+                document.getElementById('container').classList.remove('blur');
+            },
+            modelSearchChanged: function(){
+
+                if(this.modelSearch){
+                    var searchValue = this.modelSearch.toLowerCase();
+                    this.results = this.response.model.filter(function(model){
+                        return model.name.toLowerCase().indexOf(searchValue) > -1;
+                    });
+                    } else {
+                    this.results = [];
+                }
+
+
+            },
+            ready: function(){
+
+                this.showData();
+            },
+            showData: function(){
+
+                var thisPolymerElement = this;
+                var request = new XMLHttpRequest();
+                request.open('GET', 'http://localhost:3005/data.json');
+                request.onreadystatechange = function() {
+                    if ((request.readyState===4) && (request.status===200)) {
+
+                        thisPolymerElement.response = JSON.parse(request.responseText);
+
+                    }
+                };
+                request.send();
+            },
+            clearSearch: function () {
+                this.modelSearch = null;
+                this.blur();
+            },
+            close: function () {
+            if (!this.parentNode) {
+                return;
+            }
+            this.parentNode.removeChild(this);
+        }
+
+
+
+        });
+    </script>
+
+</polymer-element>
